@@ -2,7 +2,7 @@ import itertools
 import random
 
 
-class Minesweeper():
+class Minesweeper:
     """
     Minesweeper game representation
     """
@@ -84,26 +84,22 @@ class Minesweeper():
         return self.mines_found == self.mines
 
 
-class Sentence():
+class Sentence:
     """
     Logical statement about a Minesweeper game
     A sentence consists of a set of board cells,
     and a count of the number of those cells which are mines.
     """
 
-
     def __init__(self, cells, count):
         self.cells = set(cells)
         self.count = count
 
-
     def __eq__(self, other):
         return self.cells == other.cells and self.count == other.count
 
-
     def __str__(self):
         return f"{self.cells} = {self.count}"
-
 
     def known_mines(self):
         """
@@ -112,7 +108,6 @@ class Sentence():
         if len(self.cells) == self.count and self.count > 0:
             return set(self.cells)
         return set()
-
 
     def known_safes(self):
         """
@@ -131,7 +126,6 @@ class Sentence():
             self.cells.remove(cell)
             self.count -= 1
 
-
     def mark_safe(self, cell):
         """
         Updates internal knowledge representation given the fact that
@@ -141,7 +135,7 @@ class Sentence():
             self.cells.remove(cell)
 
 
-class MinesweeperAI():
+class MinesweeperAI:
     """
     Minesweeper game player
     """
@@ -226,7 +220,6 @@ class MinesweeperAI():
         # 5) Update the knowledge base: mark additional cells as safe or as mines, and infer new sentences.
         self.update_knowledge()
 
-
     def update_knowledge(self):
         """
         Iteratively update the knowledge base by:
@@ -272,7 +265,11 @@ class MinesweeperAI():
                         new_sentence = Sentence(diff, new_count)
                         # Add the new sentence if it's not already in the knowledge base
                         # and if it contains any cells.
-                        if new_sentence not in self.knowledge and new_sentence not in new_sentences and diff:
+                        if (
+                            new_sentence not in self.knowledge
+                            and new_sentence not in new_sentences
+                            and diff
+                        ):
                             new_sentences.append(new_sentence)
             if new_sentences:
                 self.knowledge.extend(new_sentences)
@@ -280,8 +277,7 @@ class MinesweeperAI():
 
             # Optionally, remove any empty sentences.
             self.knowledge = [s for s in self.knowledge if s.cells]
-            
-            
+
     def make_safe_move(self):
         """
         Returns a safe cell to choose on the Minesweeper board.

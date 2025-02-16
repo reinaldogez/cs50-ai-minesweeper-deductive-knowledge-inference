@@ -1,25 +1,22 @@
-# Minesweeper AI with Deductive Inference
-
-This project is part of Harvard's CS50 Introduction to Artificial Intelligence with Python course. It implements a Minesweeper game with an AI that uses a knowledge-based deductive inference approach to deduce safe moves and identify mines efficiently.
-
 ## Table of Contents
 
-- [Minesweeper AI with Deductive Inference](#minesweeper-ai-with-deductive-inference)
-  - [Table of Contents](#table-of-contents)
-  - [About](#about)
-  - [Project Structure](#project-structure)
-  - [Requirements](#requirements)
-  - [Running the Game](#running-the-game)
-  - [Game Logic](#game-logic)
-    - [The Purpose of the `Sentence` Class](#the-purpose-of-the-sentence-class)
-  - [Knowledge Representation and Inference](#knowledge-representation-and-inference)
-  - [Deductive Inference Process](#deductive-inference-process)
-  - [Knowledge Base Updates](#knowledge-base-updates)
-  - [Code Implementation](#code-implementation)
+- [Table of Contents](#table-of-contents)
+- [About](#about)
+- [Project Structure](#project-structure)
+- [Requirements](#requirements)
+- [Running the Game](#running-the-game)
+- [Game Logic](#game-logic)
+  - [The Purpose of the `Sentence` Class](#the-purpose-of-the-sentence-class)
+- [Knowledge Representation and Inference](#knowledge-representation-and-inference)
+- [Deductive Inference Process](#deductive-inference-process)
+- [Knowledge Base Updates](#knowledge-base-updates)
+- [Code Implementation](#code-implementation)
+  - [The add\_knowledge Method](#the-add_knowledge-method)
+  - [The update\_knowledge Method](#the-update_knowledge-method)
 
 ## About
 
-This project implements a Minesweeper game for Harvard's CS50 Introduction to Artificial Intelligence with Python course. The AI uses a knowledge-based deductive inference approach to represent board data as logical sentences, enabling it to deduce safe moves and identify mines effectively.
+This project implements a Minesweeper game for **Harvard's CS50 Introduction to Artificial Intelligence with Python** course. The AI uses a knowledge-based deductive inference approach to represent board data as logical sentences, enabling it to deduce safe moves and identify mines effectively.
 
 ## Project Structure
 
@@ -121,5 +118,65 @@ Key functions in `minesweeper.py` include:
 - `add_knowledge(cell, count)`: Updates the knowledge base when a safe cell is revealed.
 - `make_safe_move()`: Returns a move that is known to be safe.
 - `make_random_move()`: Returns a random move when no safe move is available.
+- `add_knowledge(cell, count)`:  
+  This method is called when the board reveals a safe cell and provides the number of neighboring mines. It marks the cell safe, updates existing knowledge, and creates a new sentence about undetermined neighboring cells. This information is used for further inference to identify safe cells or mines.
 
-These functions work together to enable the AI to make intelligent decisions based on deductive inference, ensuring efficient gameplay.
+- `update_knowledge(self)`:  
+  This method refines the AI's understanding by iteratively processing its knowledge base. It:
+  1. Iterates over all logical sentences, marking cells as safe or as mines based on the evidence (e.g., if the number count matches the number of cells).
+  2. Propagates new information by updating sentences (removing determined cells and adjusting counts).
+  3. Derives new sentences when one sentence is a subset of another, thereby enhancing overall inference.
+  
+  Together, these methods allow the AI to deduce new information continuously, making better decisions during gameplay.
+
+### The add_knowledge Method
+
+The `add_knowledge` method is a core part of the AI's strategy in the Minesweeper game. It is called whenever the game reveals a safe cell along with a number that indicates how many of its neighboring cells contain mines. Here’s a detailed explanation of its steps:
+
+1. **Marking the Move and the Cell as Safe:**  
+   The method starts by marking the cell as a move that has been made and adds the cell to the set of known safe cells. This ensures the AI won’t try to explore the same cell again.
+
+2. **Updating Existing Knowledge:**  
+   Every sentence (representing a logical statement about a group of cells and the number of mines among them) in the knowledge base is updated to reflect that this cell is safe. This helps keep the knowledge in sync with confirmed safe areas.
+
+3. **Consistent Inference:**  
+   When a safe cell is revealed, the count provided tells the AI exactly how many mines exist in the neighboring cells. The method uses this count to:
+   - Identify which neighboring cells are not yet determined.
+   - Adjust the count if some of those neighbors are already known mines.
+   - Build a new sentence comprised only of the still-undecided neighboring cells along with the revised mine count.
+
+4. **Expanding the Knowledge Base:**  
+   The newly derived sentence is then added to the knowledge base. This enriched collection of logical statements allows the AI to further deduce the status of other cells:
+   - If a sentence indicates that a certain number of cells must be mines, all cells in that sentence can be marked as such.
+   - Conversely, if the count is zero, all cells in the sentence are marked as safe.
+   - The AI uses these deductions to possibly update or remove redundant sentences from its knowledge base.
+
+5. **Iterative Deduction:**  
+   Finally, by continuously adding new knowledge and applying logical inference, the AI refines its strategy, increasing its chances of identifying safe moves and avoiding mines. This iterative process is key to solving the Minesweeper board efficiently.
+
+In summary, `add_knowledge` is essential for converting local observations (a cell’s mine count) into global insights (identifying other safe or mined cells) using logical inference.
+
+### The update_knowledge Method
+
+The `update_knowledge` method is responsible for refining the AI's overall understanding of the board by continuously processing and updating its knowledge base. It works in an iterative loop to draw further inferences from already gathered information. Here's a deeper explanation of its process:
+
+1. **Iterative Update Loop:**  
+   The method iterates repeatedly over the current knowledge base until no further cells can be marked as safe or as mines. This ensures that every piece of information is fully exploited.
+
+2. **Marking Cells as Safe or Mines:**  
+   For each sentence within the knowledge base, the method checks if the sentence provides enough evidence to conclude definitively that:
+   - **All cells in the sentence are mines:** If the number of mines equals the number of cells in that sentence, each cell is marked as a mine.
+   - **All cells in the sentence are safe:** If the count is zero, then every cell in the sentence is marked as safe.
+
+3. **Inference of New Knowledge:**  
+   When a cell is marked as safe or as a mine, this new information is propagated back into all sentences within the knowledge base. Sentences are updated by:
+   - Removing the determined cells from the sets in each sentence.
+   - Adjusting the mine counts accordingly, if a cell is marked as a mine.
+
+4. **Adding Derived Sentences:**  
+   The method identifies subset relationships among sentences. If one sentence's cell set is completely contained within another's, a new sentence can be inferred from the difference between the two sentences' cell sets with an adjusted mine count. This newly derived sentence is then added to the knowledge base, enriching the AI's overall understanding.
+
+5. **Cleanup of the Knowledge Base:**  
+   Redundant or empty sentences are removed to keep the knowledge base concise. This prevents unnecessary repetitions and optimizes the inference process.
+
+In summary, `update_knowledge` is a crucial method that ensures the Minesweeper AI constantly improves its board interpretation. By propagating new information and deriving new logical sentences, the AI can efficiently identify which cells are safe and which contain mines, leading to better decision-making during gameplay.

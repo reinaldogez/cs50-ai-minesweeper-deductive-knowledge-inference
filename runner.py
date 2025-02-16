@@ -156,7 +156,7 @@ while True:
     text = "Lost" if lost else "Won" if game.mines == flags else ""
     text = mediumFont.render(text, True, WHITE)
     textRect = text.get_rect()
-    textRect.center = ((5 / 6) * width, (2 / 3) * height)
+    textRect.center = (int((5/6)*width), int((2/3)*height))
     screen.blit(text, textRect)
 
     move = None
