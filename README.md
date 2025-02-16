@@ -11,6 +11,7 @@ This project is part of Harvard's CS50 Introduction to Artificial Intelligence w
   - [Requirements](#requirements)
   - [Running the Game](#running-the-game)
   - [Game Logic](#game-logic)
+    - [The Purpose of the `Sentence` Class](#the-purpose-of-the-sentence-class)
   - [Knowledge Representation and Inference](#knowledge-representation-and-inference)
   - [Deductive Inference Process](#deductive-inference-process)
   - [Knowledge Base Updates](#knowledge-base-updates)
@@ -66,6 +67,28 @@ The game logic is implemented in `minesweeper.py`. Key components include:
 - **Minesweeper Class**: Manages board creation, mine placement, and overall game state.
 - **Sentence Class**: Represents a logical sentence about a set of cells and the number of mines among them.
 - **MinesweeperAI Class**: Uses the knowledge base to deduce safe moves and identify mines by updating and inferring new information from the board.
+
+### The Purpose of the `Sentence` Class
+
+The `Sentence` class is designed to represent a logical sentence about a set of cells on the Minesweeper board. Each instance of this class encapsulates two main pieces of information:
+
+1. **Set of cells (`self.cells`)**:  
+   A set of coordinates (e.g., `(i, j)`) that have not yet been determined to be safe or mines.
+
+2. **Count (`self.count`)**:  
+   A number indicating how many of the cells in the set are mines.
+
+This structure allows the AI to build and update a knowledge base about the game. For example, if a safe cell is revealed and indicates that there are 2 mines among its neighboring cells, the AI can create a sentence that includes those neighboring cells with a count of 2. From this information, combined with other sentences, the AI can deduce:
+
+- **Which cells are certainly mines**:  
+  If the number of cells in the set equals the count, then all cells in the set must be mines.
+
+- **Which cells are certainly safe**:  
+  If the count is zero, then all cells in the set are safe.
+
+Furthermore, the methods `mark_mine` and `mark_safe` allow the sentence to be updated when a cell is discovered to be a mine or is safe, by removing that cell from the set and adjusting the count if necessary.
+
+In summary, the `Sentence` class is crucial for the AI's deductive inference process, as it provides the logical structure that enables the extraction of new information from the knowledge already acquired during the game.
 
 ## Knowledge Representation and Inference
 
